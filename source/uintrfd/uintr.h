@@ -236,12 +236,11 @@ extern char uintrret[];
 
 extern void __handler_entry(struct __uintr_frame* frame, void* handler) {
   uint64_t irqs = uipi_read();
+  csr_clear(CSR_UIP, MIE_USIE);
 
   uint64_t (*__handler)(struct __uintr_frame * frame, uint64_t) = handler;
   irqs = __handler(frame, irqs);
-
-  uipi_write(irqs);
-  csr_clear(CSR_UIP, MIE_USIE);
+  uipi_write(irqs | uipi_read());
 }
 
 static uint64_t __register_receiver(void* handler) {
