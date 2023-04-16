@@ -98,3 +98,6 @@ build/
 output/
 *.result
 .tags*
+
+.cache/
+*.json
