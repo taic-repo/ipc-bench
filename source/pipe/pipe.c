@@ -65,7 +65,7 @@ void server_communicate(int file_descriptors[2], struct Arguments *args) {
 	wait_for_signal(&signal_action);
 
 	for (message = 0; message < args->count; ++message) {
-		bench.single_start = now();
+		// bench.single_start = now();
 
 		if (fwrite(buffer, args->size, 1, stream) == -1) {
 			throw("Error writing to pipe");
@@ -75,7 +75,7 @@ void server_communicate(int file_descriptors[2], struct Arguments *args) {
 
 		notify_client();
 		wait_for_signal(&signal_action);
-		benchmark(&bench);
+		// benchmark(&bench);
 	}
 
 	evaluate(&bench, args);

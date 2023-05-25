@@ -10,8 +10,8 @@ void client_communicate(int descriptor, struct Arguments* args) {
 	uint64_t timestamp;
 
 	for (; args->count > 0; --args->count) {
-		timestamp = now();
-
+		// timestamp = now();
+		timestamp = 0;
 		// A write *adds* the value stored in the
 		// eventfd to the value in the 8-byte buffer passed.
 		// Here we send the current timestamp to the server
@@ -42,7 +42,7 @@ void server_communicate(int descriptor, struct Arguments* args) {
 		if (read(descriptor, &bench.single_start, 8) == -1) {
 			throw("Error reading from eventfd");
 		}
-		benchmark(&bench);
+		// benchmark(&bench);
 	}
 
 	// The message size is always one (it's just a signal)

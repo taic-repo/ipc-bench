@@ -57,12 +57,12 @@ void server_communicate(int descriptor, struct Arguments* args) {
 	setup_benchmarks(&bench);
 
 	for (message = 0; message < args->count; ++message) {
-		bench.single_start = now();
+		// bench.single_start = now();
 
 		eventfd_wait(descriptor, SERVER_TOKEN);
 		eventfd_notify(descriptor, CLIENT_TOKEN);
 
-		benchmark(&bench);
+		// benchmark(&bench);
 	}
 
 	// The message size is always one (it's just a signal)

@@ -10,12 +10,12 @@ void communicate(struct sigaction* signal_action, struct Arguments* args) {
 	setup_benchmarks(&bench);
 
 	for (message = 0; message < args->count; ++message) {
-		bench.single_start = now();
+		// bench.single_start = now();
 
 		notify_client();
 		wait_for_signal(signal_action);
 
-		benchmark(&bench);
+		// benchmark(&bench);
 	}
 
 	// "Ignore" the size

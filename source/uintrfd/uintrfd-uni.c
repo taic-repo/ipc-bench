@@ -14,7 +14,6 @@ int descriptor;
 struct Benchmarks bench;
 
 uint64_t uintr_handler(struct __uintr_frame *ui_frame, uint64_t irqs) {
-	benchmark(&bench);
 	uintr_count++;
 	uintr_received = 1;
   return 0;
@@ -32,7 +31,6 @@ void *client_communicate(void *arg) {
 	for (loop = args->count; loop > 0; --loop) {
 
 		uintr_received = 0;
-		bench.single_start = now();
 
 		// Send User IPI
 		uipi_send(uipi_index);
@@ -46,6 +44,7 @@ void *client_communicate(void *arg) {
 }
 
 void server_communicate(int descriptor, struct Arguments* args) {
+	setup_benchmarks(&bench);
 
 	while (uintr_count < args->count) {
 		//Keep spinning until all user interrupts are delivered.
@@ -59,8 +58,6 @@ void server_communicate(int descriptor, struct Arguments* args) {
 void communicate(int descriptor, struct Arguments* args) {
 
 	pthread_t pt;
-
-	setup_benchmarks(&bench);
 
 	// Create another thread
 	if (pthread_create(&pt, NULL, &client_communicate, args)) {

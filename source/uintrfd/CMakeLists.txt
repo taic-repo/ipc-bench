@@ -4,6 +4,7 @@
 
 add_executable(uintrfd-uni uintrfd-uni.c uintr.S)
 add_executable(uintrfd-bi uintrfd-bi.c uintr.S)
+add_executable(uipi-sample uipi-sample.c uintr.S)
 
 ###########################################################
 ## COMMON
@@ -11,3 +12,4 @@ add_executable(uintrfd-bi uintrfd-bi.c uintr.S)
 
 target_link_libraries(uintrfd-uni ipc-bench-common pthread)
 target_link_libraries(uintrfd-bi ipc-bench-common pthread)
+target_link_libraries(uipi-sample pthread)

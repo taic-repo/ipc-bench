@@ -13,14 +13,16 @@
 #define CLIENT_TOKEN 1
 
 volatile unsigned long uintr_received[2];
-int uintrfd_client;
-int uintrfd_server;
+volatile int uintrfd_client;
+volatile int uintrfd_server;
+int client_ready = 0, server_ready = 0;
 int uipi_index[2];
 
 uint64_t uintr_handler(struct __uintr_frame* ui_frame, uint64_t irqs) {
 	int cnt = -1;
 	if (irqs == 0) {
 		printf("Error: No irqs!\n");
+		return 0;
 	}
 	while (irqs > 0) {
 		++cnt;
@@ -63,11 +65,10 @@ void setup_client(void) {
 	printf("%s %d uintrfd_client = %d\n", __FUNCTION__, __LINE__, uintrfd_client);
 
 	// Wait for client to setup its FD.
-	while (!uintrfd_server) usleep(10);
+	while (!uintrfd_server)
+		;
 
 	uipi_index[SERVER_TOKEN] = uintr_register_sender(uintrfd_server);
-	if (uipi_index[SERVER_TOKEN] < 0)
-		printf("Sender register error %s\n", strerror(-uipi_index[SERVER_TOKEN]));
 }
 
 void setup_server(void) {
@@ -75,11 +76,10 @@ void setup_server(void) {
 	printf("%s %d uintrfd_server = %d\n", __FUNCTION__, __LINE__, uintrfd_server);
 
 	// Wait for client to setup its FD.
-	while (!uintrfd_client) usleep(10);
+	while (!uintrfd_client)
+		;
 
 	uipi_index[CLIENT_TOKEN] = uintr_register_sender(uintrfd_client);
-
-	// Enable interrupts
 }
 
 void* client_communicate(void* arg) {
@@ -100,15 +100,13 @@ void server_communicate(struct Arguments* args) {
 	struct Benchmarks bench;
 	int message;
 
-	setup_benchmarks(&bench);
-
 	setup_server();
 
+	setup_benchmarks(&bench);
+
 	for (message = 0; message < args->count; ++message) {
-		bench.single_start = now();
 		uintrfd_notify(CLIENT_TOKEN);
 		uintrfd_wait(SERVER_TOKEN);
-		benchmark(&bench);
 	}
 
 	// The message size is always one (it's just a signal)

@@ -162,7 +162,7 @@ static inline long __syscall6(
 #define uipi_send(index)                                                   \
 	({                                                                       \
 		unsigned long __i = (unsigned long)(index);                            \
-		__asm__ __volatile__(".insn r 0b1111011, 0b010, 0b0000000, x0, %0, x0" \
+		__asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000000, x0, %0, x0" \
 												 :                                                 \
 												 : "r"(__i)                                        \
 												 : "memory");                                      \
@@ -171,7 +171,7 @@ static inline long __syscall6(
 #define uipi_read()                                                        \
 	({                                                                       \
 		unsigned long __v;                                                     \
-		__asm__ __volatile__(".insn r 0b1111011, 0b010, 0b0000001, %0, x0, x0" \
+		__asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000001, %0, x0, x0" \
 												 : "=r"(__v)                                       \
 												 :                                                 \
 												 : "memory");                                      \
@@ -181,17 +181,17 @@ static inline long __syscall6(
 #define uipi_write(bits)                                                   \
 	({                                                                       \
 		unsigned long __v = (unsigned long)(bits);                             \
-		__asm__ __volatile__(".insn r 0b1111011, 0b010, 0b0000010, x0, %0, x0" \
+		__asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000010, x0, %0, x0" \
 												 :                                                 \
 												 : "r"(__v)                                        \
 												 : "memory");                                      \
 	})
 
 #define uipi_activate() \
-	({ __asm__ __volatile__(".insn r 0b1111011, 0b010, 0b0000011, x0, x0, x0"); })
+	({ __asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000011, x0, x0, x0"); })
 
 #define uipi_deactivate() \
-	({ __asm__ __volatile__(".insn r 0b1111011, 0b010, 0b0000100, x0, x0, x0"); })
+	({ __asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000100, x0, x0, x0"); })
 
 struct __uintr_frame {
 	/*   0 */ uint64_t ra;
@@ -237,7 +237,6 @@ extern char uintrret[];
 extern void __handler_entry(struct __uintr_frame* frame, void* handler) {
 	uint64_t irqs = uipi_read();
 	csr_clear(CSR_UIP, MIE_USIE);
-
 	uint64_t (*__handler)(struct __uintr_frame * frame, uint64_t) = handler;
 	irqs = __handler(frame, irqs);
 	uipi_write(irqs);
@@ -252,13 +251,7 @@ static uint64_t __register_receiver(void* handler) {
 	csr_set(CSR_USTATUS, USTATUS_UIE);
 	csr_set(CSR_UIE, MIE_USIE);
 
-	int ret;
-	ret = __syscall0(__NR_uintr_register_receiver);
-
-	// enable UINTC
-	uipi_activate();
-
-	return ret;
+	return __syscall0(__NR_uintr_register_receiver);
 }
 
 #define uintr_register_receiver(handler) __register_receiver(handler)
