@@ -15,8 +15,8 @@
 volatile unsigned long uintr_received[2];
 volatile int uintrfd_client;
 volatile int uintrfd_server;
-int client_ready = 0, server_ready = 0;
-int uipi_index[2];
+volatile int finish_test = 0;
+volatile int uipi_index[2];
 
 uint64_t uintr_handler(struct __uintr_frame* ui_frame, uint64_t irqs) {
 	int cnt = -1;
@@ -114,8 +114,23 @@ void server_communicate(struct Arguments* args) {
 	evaluate(&bench, args);
 }
 
+void* dummy(void* args) {
+	while (!finish_test)
+		;
+
+	return NULL;
+}
+
 void communicate(struct Arguments* args) {
 	pthread_t pt;
+
+	int dummy_cnt = args->size, i = 0;
+	pthread_t dummy_pt[dummy_cnt];
+	for (i = 0; i < dummy_cnt; i++) {
+		if (pthread_create(&dummy_pt[i], NULL, &dummy, args)) {
+			throw("Error creating dummy thread");
+		}
+	}
 
 	// Create another thread
 	if (pthread_create(&pt, NULL, &client_communicate, args)) {
@@ -123,6 +138,8 @@ void communicate(struct Arguments* args) {
 	}
 
 	server_communicate(args);
+
+	finish_test = 1;
 }
 
 int main(int argc, char* argv[]) {
