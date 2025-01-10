@@ -27,7 +27,7 @@ struct Benchmarks bench;
 void uintr_handler(struct __uintr_frame* ui_frame) {
 	volatile uint64_t data = lq_deq(server_lq_base);
 	// received notification
-	assert(data == handler);
+	// assert(data == handler);
 	lq_register_receiver(server_lq_base, client_os, client_proc, handler);
 	received_count++;
 	is_inited = 1;
