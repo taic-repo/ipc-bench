@@ -38,11 +38,12 @@ uint64_t alloc_lq(void* taic_base, uint64_t os, uint64_t proc) {
     volatile uint64_t *alloc = (uint64_t *)taic_base;
     *alloc = os;
     *alloc = proc;
-    uint64_t idx = *alloc;
-    return idx;
-}
-
-uint64_t idx2base(void* taic_base, uint64_t idx) {
+    volatile uint64_t idx = *alloc;
+    if(idx == (0UL - 1)) {
+        perror("alloc lq failed\n");
+        exit(1);
+    }
+    set_uintr_enable(idx);
     uint32_t gq_idx = (idx >> 32) & 0xffffffff;
     uint32_t lq_idx = idx & 0xffffffff;
     uint64_t base = (uint64_t)taic_base + 0x1000 + (gq_idx * LQ_NUM + lq_idx) * 0x1000;

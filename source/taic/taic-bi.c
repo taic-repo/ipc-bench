@@ -55,8 +55,7 @@ void *client_communicate(void *arg) {
 	struct Arguments* args = (struct Arguments*)arg;
 	int mem_fd;
 	void* taic_base = get_taic(&mem_fd);
-	uint64_t lq_idx = alloc_lq(taic_base, client_os, client_proc);
-	uint64_t lq_base = idx2base(taic_base, lq_idx);
+	uint64_t lq_base = alloc_lq(taic_base, client_os, client_proc);
 	lq_register_sender(lq_base, server_os, server_proc);
 	lq_register_receiver(lq_base, server_os, server_proc, handler);
 	is_inited[CLIENT_TOKEN] = 1;
@@ -75,8 +74,7 @@ void *client_communicate(void *arg) {
 void server_communicate(struct Arguments* args) {
 	int mem_fd;
 	void* taic_base = get_taic(&mem_fd);
-	uint64_t lq_idx = alloc_lq(taic_base, server_os, server_proc);
-	uint64_t lq_base = idx2base(taic_base, lq_idx);
+	uint64_t lq_base = alloc_lq(taic_base, server_os, server_proc);
 	lq_register_sender(lq_base, client_os, client_proc);
 	lq_register_receiver(lq_base, client_os, client_proc, handler);
 	is_inited[SERVER_TOKEN] = 1;

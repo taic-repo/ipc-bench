@@ -161,12 +161,16 @@ static inline long __syscall3(long n, long a, long b, long c) {
 }
 
 #define __NR_uintr_enable 244
-void setup_uintr(void* handler, uint64_t lq_dix) {
-	int ret = __syscall1(__NR_uintr_enable, lq_dix);
+
+void set_uintr_enable(uint64_t lq_idx) {
+	int ret = __syscall1(__NR_uintr_enable, lq_idx);
 	if (ret < 0) {
 		printf("Failed to enable uintr\n");
 		exit(1);
 	}
+}
+
+void setup_uintr(void* handler) {
 	// set user interrupt entry
 	csr_write(CSR_UTVEC, uintrvec);
 	csr_write(CSR_USCRATCH, handler);
